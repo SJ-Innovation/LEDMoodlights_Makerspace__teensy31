@@ -17,20 +17,19 @@ BeatAnalyzer BeatDetector(&PeakDetector);
 
 byte DrawBuffer[NUMBER_OF_LEDS * 3];
 DMAMEM byte DisplayBuffer[NUMBER_OF_LEDS * 12];
-SuperFastNeoPixel LEDS(NUMBER_OF_LEDS, DisplayBuffer, DrawBuffer, LED_OUT_PIN, PIXELORDER::BRG);
+SuperFastNeoPixel LEDS(NUMBER_OF_LEDS, DisplayBuffer, DrawBuffer, LED_OUT_PIN, PIXELORDER::BRG); // Set up for rendering to the LEDs
 
 #define IN_RANGE(Min, X, Max) ((X>=Min && X<= Max)? 1:0)
 
-void (*EffectFunctions[MAX_EFFECT_FUNCTIONS])(void) = { };
-
+void (*EffectFunctions[MAX_EFFECT_FUNCTIONS])(void) = { }; // Registry for effect functions.
 u_int32_t EffectRecallTimes[MAX_EFFECT_FUNCTIONS] = { };
 u_int32_t EffectIntervalTimes[MAX_EFFECT_FUNCTIONS] = { };
 
-void NullEffectFunction() {
+void NullEffectFunction() { // Required for blank effects to reduce risk of seg.
 
 }
 
-void BlankRegisterTable() {
+void BlankRegisterTable() { // Initialise table and blank to nulleffect
     for (int i = 0; i < MAX_EFFECT_FUNCTIONS; i++) {
         EffectRecallTimes[i] = 0;
         EffectFunctions[i] = &NullEffectFunction;
@@ -46,23 +45,28 @@ int FreeRam() { // Difference between stack and heap pointers.
     return &top - reinterpret_cast<char *>(sbrk(0));
 }
 
-bool RegisterEffectFunctionTo(int Index, int Frequency, int DisplayTime, void (*EffectFunction)(void)) {
-    Frequency = min(Frequency,FAST_AS_POSSIBLE);
-    if (IN_RANGE(0, Index, MAX_EFFECT_FUNCTIONS - 1) && IN_RANGE(0,Frequency,FAST_AS_POSSIBLE)) {
+bool RegisterEffectFunctionTo(int Index, int Frequency, int DisplayTime,
+                              void (*EffectFunction)(void)) { // Registers an effect function to the set registry index. Overwrites.
+    Frequency = min(Frequency, FAST_AS_POSSIBLE);
+    if (IN_RANGE(0, Index, MAX_EFFECT_FUNCTIONS - 1) && IN_RANGE(0, Frequency, FAST_AS_POSSIBLE)) {
         EffectFunctions[Index] = EffectFunction;
         EffectRecallTimes[Index] = DisplayTime;
-        EffectIntervalTimes[Index] = round(1000.0F/(float)Frequency);
+        if (Frequency == FAST_AS_POSSIBLE) {
+            EffectIntervalTimes[Index] = 0;
+        }
+        else {
+            EffectIntervalTimes[Index] = round(1000.0F / (float) Frequency);
+        }
         Serial.print(F("EFFECT REGISTER PASSED: "));
         Serial.println(Index);
         return true;
     }
-
     Serial.print(F("EFFECT REGISTER FAILED: "));
     Serial.println(Index);
     return false;
 }
 
-bool RegisterNextEffect(int Frequency, int DisplayTime, void (*EffectFunction)(void)) {
+bool RegisterNextEffect(int Frequency, int DisplayTime, void (*EffectFunction)(void)) { // Registers an effect to the next available function index.
     static int CurrentFunctionRegister = 0;
     return RegisterEffectFunctionTo(CurrentFunctionRegister++, Frequency, DisplayTime, EffectFunction);
 }
@@ -71,13 +75,17 @@ bool RegisterNextEffect(int Frequency, int DisplayTime, void (*EffectFunction)(v
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT_STRONGDRIVE);
     pinMode(LED_OUT_PIN, OUTPUT_STRONGDRIVE);
+    pinMode(3, OUTPUT);
+    pinMode(4, OUTPUT);
     Serial.begin(115200);
     AudioMemory(15);
     LEDS.Begin();
     BlankRegisterTable();
-    RegisterCustomEffects();
+    RegisterCustomEffects(); // In Custom Effects file, registers users effects.
 
 }
+
+
 
 void loop() {
     u_int32_t Now = millis();
@@ -85,29 +93,29 @@ void loop() {
     static u_int32_t LastEffectChange = 0;
     static u_int32_t LastEffectFunctionRun = 0;
 
-    if (Now - LastEffectChange >= EffectRecallTimes[CurrentEffectIndex]) {
+    if (Now - LastEffectChange >= EffectRecallTimes[CurrentEffectIndex]) { // If its time to change effect.
         do {
             CurrentEffectIndex++;
-            CurrentEffectIndex %= MAX_EFFECT_FUNCTIONS;
-        } while (EffectFunctions[CurrentEffectIndex] == NullEffectFunction);
-
+            if (CurrentEffectIndex >= MAX_EFFECT_FUNCTIONS){
+                CurrentEffectIndex = 0;
+            }
+        } while (EffectFunctions[CurrentEffectIndex] ==
+                 NullEffectFunction); // Search for the next effect that isnt the nulleffect. Keep going until we find one.
 
         LastEffectChange = Now;
-        Serial.print(F("EFFECT CHANGE TO: "));
-        Serial.println(CurrentEffectIndex);
-        Serial.print(" FOR:");
-        Serial.print(EffectRecallTimes[CurrentEffectIndex]);
-        Serial.println("ms");
     }
 
-    if (Now - LastEffectFunctionRun >= EffectIntervalTimes[CurrentEffectIndex]) {
+    if ((not LEDS.IsBusy()) and (EffectIntervalTimes[CurrentEffectIndex] == 0 or Now - LastEffectFunctionRun >= EffectIntervalTimes[CurrentEffectIndex])) { // Is it time to run the effect function as defined by its call frequency?
         LastEffectFunctionRun = Now;
-        EffectFunctions[CurrentEffectIndex]();
-
+        EffectFunctions[CurrentEffectIndex](); // Run whichever effect we need to run.
+        LEDS.ShowNonBlocking(); // Start the LEDs updating first. Its asyncronous.
     }
-    FFTChannel.update();
-    BeatDetector.update();
-    LEDS.Show();
 
+    digitalWriteFast(3, HIGH);
+    FFTChannel.update(); // Update audio handlers.
+    digitalWriteFast(3, LOW);
+    digitalWriteFast(4, HIGH);
+    BeatDetector.update();
+    digitalWriteFast(4, LOW);
 
 }

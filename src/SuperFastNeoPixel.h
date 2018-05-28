@@ -63,7 +63,8 @@ public:
         memset(DrawBuffer, 0, NumLed * 3);
     }
 
-    void Show();
+    void ShowBlocking();
+    void ShowNonBlocking();
 
     bool IsBusy();
 

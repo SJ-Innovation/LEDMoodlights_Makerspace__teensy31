@@ -26,15 +26,15 @@ void TestEffect2();
 
 void RegisterCustomEffects(){ // Called during init to assign and set up all effect functions.
     RegisterNextEffect(FAST_AS_POSSIBLE,1000,TestEffect1);
-    RegisterNextEffect(5,3000,TestEffect2);
+    RegisterNextEffect(50,1000,TestEffect1);
 }
 
 void TestEffect1(){
-Serial.println("1");
+
 }
 
 void TestEffect2(){
-Serial.println("2");
+
 }
 
 

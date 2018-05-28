@@ -131,19 +131,25 @@ bool SuperFastNeoPixel::IsBusy() {
 #endif
 }
 
-int SuperFastNeoPixel::GetUpdateRate(){
+int SuperFastNeoPixel::GetUpdateRate() {
     static u_int32_t LastCall;
     u_int32_t Now = millis();
-    u_int32_t Delta = Now-LastCall;
-    int Rate = (1000*FrameCount) / Delta;
+    u_int32_t Delta = Now - LastCall;
+    int Rate = (1000 * FrameCount) / Delta;
     FrameCount = 0;
     LastCall = Now;
     return Rate;
 }
 
-void SuperFastNeoPixel::Show() {
+void SuperFastNeoPixel::ShowBlocking(){
     // wait if prior DMA still in progress
     while (IsBusy()) { yield(); };
+    ShowNonBlocking();
+}
+
+void SuperFastNeoPixel::ShowNonBlocking() {
+
+
     FrameCount++;
     // copy drawing buffer to frame buffer
     const uint8_t *CurrentPtr = DrawBuffer;
