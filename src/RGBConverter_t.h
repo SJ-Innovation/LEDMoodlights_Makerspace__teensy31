@@ -29,12 +29,15 @@ class RGBConverter_t {
 public:
     void ToHSL(RGBPixel &RGB, HSLPixel &HSL);
     void ToHSL(HSVPixel &HSV, HSLPixel &HSL);
+    void ToHSL(u_int32_t Raw, HSLPixel &HSL);
 
     void ToHSV(RGBPixel &RGB, HSVPixel &HSV);
     void ToHSV(HSLPixel &HSL, HSVPixel &HSV);
+    void ToHSV(u_int32_t Raw, HSVPixel &HSV);
 
     void ToRGB(HSLPixel &HSL, RGBPixel &RGB);
     void ToRGB(HSVPixel &HSV, RGBPixel &RGB);
+    void ToRGB(u_int32_t Raw, RGBPixel &RGB);
 
 private:
     float MaxThree(float a, float b, float c);

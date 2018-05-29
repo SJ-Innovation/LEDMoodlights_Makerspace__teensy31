@@ -3,7 +3,7 @@
 #include "SuperFastNeoPixel.h"
 #include "Config.h"
 #include "Effects.h"
-
+#include "lib8tion.h"
 #include "SoundAnalysis.h"
 
 AudioInputAnalogStereo InputChannel(AUDIO_IN1_PIN, AUDIO_IN2_PIN);
@@ -53,12 +53,12 @@ int FreeRam() { // Difference between stack and heap pointers.
     return &top - reinterpret_cast<char *>(sbrk(0));
 }
 
-bool RegisterEffectFunctionTo(int Index, int Frequency, int DisplayTime,
+bool RegisterEffectFunctionTo(int Index, float Frequency, float DisplayTime,
                               void (*EffectFunction)(void)) { // Registers an effect function to the set registry index. Overwrites.
     Frequency = min(Frequency, FAST_AS_POSSIBLE);
     if (IN_RANGE(0, Index, MAX_EFFECT_FUNCTIONS - 1) && IN_RANGE(0, Frequency, FAST_AS_POSSIBLE)) {
         EffectFunctions[Index] = EffectFunction;
-        EffectRecallTimes[Index] = DisplayTime;
+        EffectRecallTimes[Index] = round(DisplayTime*1000);
         if (Frequency == FAST_AS_POSSIBLE) {
             EffectIntervalTimes[Index] = 0;
         }
@@ -74,7 +74,7 @@ bool RegisterEffectFunctionTo(int Index, int Frequency, int DisplayTime,
     return false;
 }
 
-bool RegisterNextEffect(int Frequency, int DisplayTime, void (*EffectFunction)(void)) { // Registers an effect to the next available function index.
+bool RegisterNextEffect(float Frequency, float DisplayTime, void (*EffectFunction)(void)) { // Registers an effect to the next available function index.
     static int CurrentFunctionRegister = 0;
     return RegisterEffectFunctionTo(CurrentFunctionRegister++, Frequency, DisplayTime, EffectFunction);
 }
@@ -108,8 +108,6 @@ void ForceNextEffect(void(*EffectFunction)(void), bool Immediate) { // Forgoes n
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT_STRONGDRIVE);
     pinMode(LED_OUT_PIN, OUTPUT_STRONGDRIVE);
-    pinMode(3, OUTPUT);
-    pinMode(4, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
     Serial.begin(115200);
     AudioMemory(15);

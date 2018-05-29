@@ -51,9 +51,91 @@ public:
     constexpr SuperFastNeoPixel(uint16_t num, void *fb, void *db, uint8_t pin, uint8_t cfg) :
             NumLed(num), Pin(pin), Config(cfg),
             FrameBuffer((uint8_t *) fb), DrawBuffer((uint8_t *) db) {
+        _Brightness = 1;
     }
 
     bool Begin();
+
+    void ScalePixel(u_int32_t Num, float ScaleFactor) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        DrawBuffer[Num + 0] *= ScaleFactor;
+        DrawBuffer[Num + 1] *= ScaleFactor;
+        DrawBuffer[Num + 2] *= ScaleFactor;
+    }
+
+    void AddToPixel(u_int32_t Num, u_int8_t r, u_int8_t g, u_int8_t b) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        DrawBuffer[Num + 0] += r;
+        DrawBuffer[Num + 1] += g;
+        DrawBuffer[Num + 2] += b;
+    }
+
+    void AddToPixel(u_int32_t Num, u_int32_t Offset) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        DrawBuffer[Num + 0] += Offset & 255;
+        DrawBuffer[Num + 1] += (Offset >> 8) & 255;
+        DrawBuffer[Num + 2] += (Offset >> 16) & 255;
+    }
+
+    void AddToPixel(u_int32_t Num, RGBPixel &Offset) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        DrawBuffer[Num + 0] += Offset.R;
+        DrawBuffer[Num + 1] += Offset.G;
+        DrawBuffer[Num + 2] += Offset.B;
+    }
+
+    void AddToPixel(u_int32_t Num, HSVPixel &Offset) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        RGBPixel Temp;
+        ColourConverter.ToRGB(Offset, Temp);
+        AddToPixel(Num, Temp);
+    }
+
+    void AddToPixel(u_int32_t Num, HSLPixel &Offset) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        RGBPixel Temp;
+        ColourConverter.ToRGB(Offset, Temp);
+        AddToPixel(Num, Temp);
+    }
+
+    void SubtractFromPixel(u_int32_t Num, u_int8_t r, u_int8_t g, u_int8_t b) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        DrawBuffer[Num + 0] -= r;
+        DrawBuffer[Num + 1] -= g;
+        DrawBuffer[Num + 2] -= b;
+    }
+
+    void SubtractFromPixel(u_int32_t Num, RGBPixel &Offset) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        DrawBuffer[Num + 0] -= Offset.R;
+        DrawBuffer[Num + 1] -= Offset.G;
+        DrawBuffer[Num + 2] -= Offset.B;
+    }
+
+    void SubtractFromPixel(u_int32_t Num, HSVPixel &Offset) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        RGBPixel Temp;
+        ColourConverter.ToRGB(Offset, Temp);
+        SubtractFromPixel(Num, Temp);
+    }
+
+    void SubtractFromPixel(u_int32_t Num, HSLPixel &Offset) {
+        if (Num >= NumLed) return;
+        Num *= 3;
+        RGBPixel Temp;
+        ColourConverter.ToRGB(Offset, Temp);
+        SubtractFromPixel(Num, Temp);
+    }
+
 
     void SetPixel(u_int32_t Num, u_int32_t Colour) {
         if (Num >= NumLed) return;
@@ -61,7 +143,6 @@ public:
         DrawBuffer[Num + 0] = Colour & 255;
         DrawBuffer[Num + 1] = (Colour >> 8) & 255;
         DrawBuffer[Num + 2] = (Colour >> 16) & 255;
-
     }
 
     void SetPixel(u_int32_t Num, uint8_t red, uint8_t green, uint8_t blue) {
@@ -95,6 +176,8 @@ public:
     }
 
     u_int32_t GetPixel(u_int32_t Num) {
+        if (Num >= NumLed) return 0;
+        Num *= 3;
         return 0xFFFFFF & ((DrawBuffer[Num] << 16) | (DrawBuffer[Num + 1] << 8) | (DrawBuffer[Num + 2]));
     }
 
@@ -108,7 +191,6 @@ public:
 
     void GetPixel(u_int32_t Num, HSLPixel &StoreTo) {
         if (Num >= NumLed) return;
-        Num *= 3;
         RGBPixel Temp;
         GetPixel(Num, Temp);
         ColourConverter.ToHSL(Temp, StoreTo);
@@ -116,7 +198,6 @@ public:
 
     void GetPixel(u_int32_t Num, HSVPixel &StoreTo) {
         if (Num >= NumLed) return;
-        Num *= 3;
         RGBPixel Temp;
         GetPixel(Num, Temp);
         ColourConverter.ToHSV(Temp, StoreTo);
@@ -125,6 +206,16 @@ public:
     void Clear() {
         memset(DrawBuffer, 0, NumLed * 3);
     }
+
+    void SetGlobalBrightness(float NewBrightness) {
+        NewBrightness = constrain(NewBrightness, 0, 1);
+        _Brightness = NewBrightness;
+    }
+
+    float GetGlobalBrightness() {
+        return _Brightness;
+    }
+
 
     void ShowBlocking();
 
@@ -147,6 +238,7 @@ private:
     DMAChannel *DMA = nullptr;
     uint32_t Prior_Micros = 0;
     u_int32_t FrameCount = 0;
+    float _Brightness = 1;
 };
 
 #endif

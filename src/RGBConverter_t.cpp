@@ -1,5 +1,10 @@
 #include "RGBConverter_t.h"
 
+void RGBConverter_t::ToRGB(u_int32_t Raw, RGBPixel &RGB) {
+    RGB.R = (Raw >> 16) & 255;
+    RGB.G = (Raw >> 8) & 255;
+    RGB.B = (Raw) & 255;
+}
 
 void RGBConverter_t::ToRGB(HSLPixel &HSL, RGBPixel &RGB) {
     float r, g, b;
@@ -55,6 +60,8 @@ void RGBConverter_t::ToRGB(HSVPixel &HSV, RGBPixel &RGB) {
     RGB.B = b * 255;
 }
 
+
+
 void RGBConverter_t::ToHSL(RGBPixel &RGB, HSLPixel &HSL) {
     float rd = (float) RGB.R / 255;
     float gd = (float) RGB.G / 255;
@@ -91,6 +98,11 @@ void RGBConverter_t::ToHSL(HSVPixel &HSV, HSLPixel &HSL) {
     ToHSL(Temp, HSL);
 }
 
+void RGBConverter_t::ToHSL(u_int32_t Raw, HSLPixel &HSL) {
+    RGBPixel Temp;
+    ToRGB(Raw,Temp);
+    ToHSL(Temp,HSL);
+}
 
 void RGBConverter_t::ToHSV(RGBPixel &RGB, HSVPixel &HSV) {
     float rd = (float) RGB.R / 255;
@@ -128,6 +140,13 @@ void RGBConverter_t::ToHSV(HSLPixel &HSL, HSVPixel &HSV) {
     ToRGB(HSL, Temp);
     ToHSV(Temp, HSV);
 }
+
+void RGBConverter_t::ToHSV(u_int32_t Raw, HSVPixel &HSV) {
+    RGBPixel Temp;
+    ToRGB(Raw,Temp);
+    ToHSV(Temp,HSV);
+}
+
 
 float RGBConverter_t::MaxThree(float a, float b, float c) {
     return max(a, max(b, c));
