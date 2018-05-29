@@ -108,7 +108,7 @@ void ForceNextEffect(void(*EffectFunction)(void), bool Immediate) { // Forgoes n
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT_STRONGDRIVE);
     pinMode(LED_OUT_PIN, OUTPUT_STRONGDRIVE);
-    digitalWrite(LED_BUILTIN, HIGH);
+
     Serial.begin(115200);
     AudioMemory(15);
     InputMixer.gain(0, 1);
@@ -125,7 +125,7 @@ void loop() {
     static int CurrentEffectIndex = 0;
     static u_int32_t LastEffectChange = 0;
     static u_int32_t LastEffectFunctionRun = 0;
-
+   // Serial.println(ReadFromPallete(PartyColors_p,5),HEX);
     if (Now - LastEffectChange >= EffectRecallTimes[CurrentEffectIndex] or ForceNextEffectImmediate) { // If its time to change effect.
 
         if (ForceNextEffectIndex == -1) {
@@ -150,6 +150,7 @@ void loop() {
         LastEffectFunctionRun = Now;
         EffectFunctions[CurrentEffectIndex](); // Run whichever effect we need to run.
         LEDS.ShowNonBlocking(); // Start the LEDs updating first. Its asyncronous.
+        digitalWrite(LED_BUILTIN, !digitalReadFast(LED_BUILTIN));
     }
 
     SoundAnalyser.Update(); // Update audio handlers.
