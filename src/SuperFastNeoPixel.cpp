@@ -199,7 +199,7 @@ void SuperFastNeoPixel::ShowNonBlocking() {
         yield();
     }
     Prior_Micros = Now;
-    // start DMA transfer to update LEDs  :-)
+    // start DMA transfer to Update LEDs  :-)
 #if defined(KINETISK)
     DMA->sourceBuffer(FrameBuffer, NumLed * 12);
     DMA->transferSize(1);

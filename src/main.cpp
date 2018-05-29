@@ -3,17 +3,25 @@
 #include "SuperFastNeoPixel.h"
 #include "Config.h"
 #include "Effects.h"
-#include "BeatDetection.h"
 
-AudioInputAnalog InputChannel(AUDIO_IN_PIN);
+#include "SoundAnalysis.h"
+
+AudioInputAnalogStereo InputChannel(AUDIO_IN1_PIN, AUDIO_IN2_PIN);
+
+AudioMixer4 InputMixer;
+AudioConnection InputCord1(InputChannel, 0, InputMixer, 0);
+AudioConnection InputCord2(InputChannel, 1, InputMixer, 1);
 
 AudioAnalyzeFFT1024 FFTChannel;
-AudioConnection Stream1(InputChannel, FFTChannel);
+AudioAnalyzePeak PeakChannel;
+AudioAnalyzeRMS RMSChannel;
 
-AudioAnalyzePeak PeakDetector;
-AudioConnection Stream2(InputChannel, PeakDetector);
-BeatAnalyzer BeatDetector(&PeakDetector);
+AudioConnection Stream1(InputMixer, FFTChannel);
+AudioConnection Stream2(InputMixer, PeakChannel);
+AudioConnection Stream3(InputMixer, RMSChannel);
 
+SoundAnalyser_t SoundAnalyser(&FFTChannel, &PeakChannel, &RMSChannel);
+RGBConverter_t ColourConverter;
 
 byte DrawBuffer[NUMBER_OF_LEDS * 3];
 DMAMEM byte DisplayBuffer[NUMBER_OF_LEDS * 12];
@@ -71,20 +79,47 @@ bool RegisterNextEffect(int Frequency, int DisplayTime, void (*EffectFunction)(v
     return RegisterEffectFunctionTo(CurrentFunctionRegister++, Frequency, DisplayTime, EffectFunction);
 }
 
+int GetEffectIndex(void(*EffectFunction)(void)) {
+    for (int i = 0; i < MAX_EFFECT_FUNCTIONS; i++) {
+        if (EffectFunctions[i] == EffectFunction) {
+            return i;
+        }
+    }
+    Serial.println(F("WARNING: Invalid Effect Function Index Searched For."));
+    return -1;
+}
+
+int ForceNextEffectIndex = -1;
+bool ForceNextEffectImmediate = false;
+
+void ForceNextEffectTo(int Index, bool Immediate) { // Forces the next event to be the first occourance of the given event index.
+    Index = max(0, Index);
+    Index = min(MAX_EFFECT_FUNCTIONS - 1, Index);
+    ForceNextEffectImmediate = Immediate;
+    ForceNextEffectIndex = Index;
+}
+
+void ForceNextEffect(void(*EffectFunction)(void), bool Immediate) { // Forgoes next effect in line and forces next effect to be the first instance of the one given.
+    ForceNextEffectTo(GetEffectIndex(EffectFunction), Immediate);
+}
+
+
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT_STRONGDRIVE);
     pinMode(LED_OUT_PIN, OUTPUT_STRONGDRIVE);
     pinMode(3, OUTPUT);
     pinMode(4, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
     Serial.begin(115200);
     AudioMemory(15);
+    InputMixer.gain(0, 1);
+    InputMixer.gain(1, 1);
     LEDS.Begin();
     BlankRegisterTable();
     RegisterCustomEffects(); // In Custom Effects file, registers users effects.
 
 }
-
 
 
 void loop() {
@@ -93,29 +128,32 @@ void loop() {
     static u_int32_t LastEffectChange = 0;
     static u_int32_t LastEffectFunctionRun = 0;
 
-    if (Now - LastEffectChange >= EffectRecallTimes[CurrentEffectIndex]) { // If its time to change effect.
-        do {
-            CurrentEffectIndex++;
-            if (CurrentEffectIndex >= MAX_EFFECT_FUNCTIONS){
-                CurrentEffectIndex = 0;
-            }
-        } while (EffectFunctions[CurrentEffectIndex] ==
-                 NullEffectFunction); // Search for the next effect that isnt the nulleffect. Keep going until we find one.
+    if (Now - LastEffectChange >= EffectRecallTimes[CurrentEffectIndex] or ForceNextEffectImmediate) { // If its time to change effect.
 
+        if (ForceNextEffectIndex == -1) {
+            do {
+                CurrentEffectIndex++;
+                if (CurrentEffectIndex >= MAX_EFFECT_FUNCTIONS) {
+                    CurrentEffectIndex = 0;
+                }
+            } while (EffectFunctions[CurrentEffectIndex] ==
+                     NullEffectFunction); // Search for the next effect that isnt the nulleffect. Keep going until we find one.
+        }
+        else {
+            CurrentEffectIndex = ForceNextEffectIndex;
+            ForceNextEffectIndex = -1;
+        }
+        ForceNextEffectImmediate = false;
         LastEffectChange = Now;
     }
 
-    if ((not LEDS.IsBusy()) and (EffectIntervalTimes[CurrentEffectIndex] == 0 or Now - LastEffectFunctionRun >= EffectIntervalTimes[CurrentEffectIndex])) { // Is it time to run the effect function as defined by its call frequency?
+    if ((not LEDS.IsBusy()) and (EffectIntervalTimes[CurrentEffectIndex] == 0 or Now - LastEffectFunctionRun >=
+                                                                                 EffectIntervalTimes[CurrentEffectIndex])) { // Is it time to run the effect function as defined by its call frequency?
         LastEffectFunctionRun = Now;
         EffectFunctions[CurrentEffectIndex](); // Run whichever effect we need to run.
         LEDS.ShowNonBlocking(); // Start the LEDs updating first. Its asyncronous.
     }
 
-    digitalWriteFast(3, HIGH);
-    FFTChannel.update(); // Update audio handlers.
-    digitalWriteFast(3, LOW);
-    digitalWriteFast(4, HIGH);
-    BeatDetector.update();
-    digitalWriteFast(4, LOW);
+    SoundAnalyser.Update(); // Update audio handlers.
 
 }
