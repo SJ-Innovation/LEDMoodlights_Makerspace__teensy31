@@ -67,30 +67,23 @@ public:
     void AddToPixel(u_int32_t Num, u_int8_t r, u_int8_t g, u_int8_t b) {
         if (Num >= NumLed) return;
         Num *= 3;
-        DrawBuffer[Num + 0] += r;
-        DrawBuffer[Num + 1] += g;
-        DrawBuffer[Num + 2] += b;
+        DrawBuffer[Num + 0] += min(r, 255 - DrawBuffer[Num + 0]);
+        DrawBuffer[Num + 1] += min(g, 255 - DrawBuffer[Num + 1]);
+        DrawBuffer[Num + 2] += min(b, 255 - DrawBuffer[Num + 2]);
     }
 
     void AddToPixel(u_int32_t Num, u_int32_t Offset) {
         if (Num >= NumLed) return;
-        Num *= 3;
-        DrawBuffer[Num + 0] += Offset & 255;
-        DrawBuffer[Num + 1] += (Offset >> 8) & 255;
-        DrawBuffer[Num + 2] += (Offset >> 16) & 255;
+        AddToPixel(Num, (Offset >> 16) & 255, (Offset >> 8) & 255, Offset & 255);
     }
 
     void AddToPixel(u_int32_t Num, RGBPixel &Offset) {
         if (Num >= NumLed) return;
-        Num *= 3;
-        DrawBuffer[Num + 0] += Offset.R;
-        DrawBuffer[Num + 1] += Offset.G;
-        DrawBuffer[Num + 2] += Offset.B;
+        AddToPixel(Num, Offset.R, Offset.G, Offset.B);
     }
 
     void AddToPixel(u_int32_t Num, HSVPixel &Offset) {
         if (Num >= NumLed) return;
-        Num *= 3;
         RGBPixel Temp;
         ColourConverter.ToRGB(Offset, Temp);
         AddToPixel(Num, Temp);
@@ -98,7 +91,6 @@ public:
 
     void AddToPixel(u_int32_t Num, HSLPixel &Offset) {
         if (Num >= NumLed) return;
-        Num *= 3;
         RGBPixel Temp;
         ColourConverter.ToRGB(Offset, Temp);
         AddToPixel(Num, Temp);
@@ -107,22 +99,18 @@ public:
     void SubtractFromPixel(u_int32_t Num, u_int8_t r, u_int8_t g, u_int8_t b) {
         if (Num >= NumLed) return;
         Num *= 3;
-        DrawBuffer[Num + 0] -= r;
-        DrawBuffer[Num + 1] -= g;
-        DrawBuffer[Num + 2] -= b;
+        DrawBuffer[Num + 0] -= min(r, DrawBuffer[Num + 0]);
+        DrawBuffer[Num + 1] -= min(g, DrawBuffer[Num + 1]);
+        DrawBuffer[Num + 2] -= min(b, DrawBuffer[Num + 2]);
     }
 
     void SubtractFromPixel(u_int32_t Num, RGBPixel &Offset) {
         if (Num >= NumLed) return;
-        Num *= 3;
-        DrawBuffer[Num + 0] -= Offset.R;
-        DrawBuffer[Num + 1] -= Offset.G;
-        DrawBuffer[Num + 2] -= Offset.B;
+        SubtractFromPixel(Num, Offset.R, Offset.G, Offset.B);
     }
 
     void SubtractFromPixel(u_int32_t Num, HSVPixel &Offset) {
         if (Num >= NumLed) return;
-        Num *= 3;
         RGBPixel Temp;
         ColourConverter.ToRGB(Offset, Temp);
         SubtractFromPixel(Num, Temp);
@@ -130,35 +118,28 @@ public:
 
     void SubtractFromPixel(u_int32_t Num, HSLPixel &Offset) {
         if (Num >= NumLed) return;
-        Num *= 3;
         RGBPixel Temp;
         ColourConverter.ToRGB(Offset, Temp);
         SubtractFromPixel(Num, Temp);
     }
 
-
-    void SetPixel(u_int32_t Num, u_int32_t Colour) {
-        if (Num >= NumLed) return;
-        Num *= 3;
-        DrawBuffer[Num + 0] = Colour & 255;
-        DrawBuffer[Num + 1] = (Colour >> 8) & 255;
-        DrawBuffer[Num + 2] = (Colour >> 16) & 255;
-    }
-
     void SetPixel(u_int32_t Num, uint8_t red, uint8_t green, uint8_t blue) {
         if (Num >= NumLed) return;
         Num *= 3;
-        DrawBuffer[Num + 0] = blue;
+        DrawBuffer[Num + 0] = red;
         DrawBuffer[Num + 1] = green;
-        DrawBuffer[Num + 2] = red;
+        DrawBuffer[Num + 2] = blue;
     }
+
+    void SetPixel(u_int32_t Num, u_int32_t Colour) {
+        if (Num >= NumLed) return;
+        SetPixel(Num, (Colour >> 16) & 255, (Colour >> 8) & 255, Colour & 255);
+    }
+
 
     void SetPixel(u_int32_t Num, RGBPixel &Pixel) {
         if (Num >= NumLed) return;
-        Num *= 3;
-        DrawBuffer[Num + 0] = Pixel.R;
-        DrawBuffer[Num + 1] = Pixel.G;
-        DrawBuffer[Num + 2] = Pixel.B;
+        SetPixel(Num,Pixel.R,Pixel.G,Pixel.B);
     }
 
     void SetPixel(u_int32_t Num, HSLPixel &Pixel) {

@@ -2,7 +2,7 @@
 #include "RGBConverter_t.h"
 #include "Effects.h"
 
-u_int32_t ReadFromPallete(const u_int32_t *Pallete, int Index) { // TODO SAVE TO PROGMEM
+u_int32_t ReadFromPallete(const u_int32_t *Pallete, int Index) {
     Index %= 16;
     u_int32_t This = pgm_read_dword(&Pallete[Index]);
     return This;

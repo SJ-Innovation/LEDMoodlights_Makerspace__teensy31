@@ -154,9 +154,9 @@ void SuperFastNeoPixel::ShowNonBlocking() {
     const uint8_t *EndPtr = CurrentPtr + (NumLed * 3);
     uint8_t *CurFrameBuffer = FrameBuffer;
     while (CurrentPtr < EndPtr) {
-        uint8_t b = (float)(*CurrentPtr++)*_Brightness;
-        uint8_t g = (float)(*CurrentPtr++)*_Brightness;
         uint8_t r = (float)(*CurrentPtr++)*_Brightness;
+        uint8_t g = (float)(*CurrentPtr++)*_Brightness;
+        uint8_t b = (float)(*CurrentPtr++)*_Brightness;
         uint32_t n = 0;
         switch (Config) {
             case PIXELORDER::RGB:

@@ -61,16 +61,16 @@ void TestEffect1() {
 }
 
 
-uint8_t gHue = 0; // rotating "base color" used by many of the patterns
+uint8_t EffectVarietyCounter = 0; // rotating "base color" used by many of the patterns
 
 void Rainbow() {
     // FastLED's built-in Rainbow generator
-    FillRainbow(0, NUMBER_OF_LEDS, gHue, 7);
+    FillRainbow(0, NUMBER_OF_LEDS, EffectVarietyCounter, 7);
 }
 
-void AddGlitter(fract8 ChanceOfGlitter) {
+void AddGlitter(u_int8_t ChanceOfGlitter) {
     if (random8() < ChanceOfGlitter) {
-        LEDS.AddToPixel(random16(NUMBER_OF_LEDS), 255, 255, 255);
+        LEDS.SetPixel(random16(NUMBER_OF_LEDS), 255, 255, 255);
     }
 }
 
@@ -85,7 +85,7 @@ void Confetti() {
     // random colored speckles that blink in and fade smoothly
     Fade(0, NUMBER_OF_LEDS, 0.05);
     u_int32_t Pos = random16(NUMBER_OF_LEDS);
-    LEDS.AddToPixel(Pos, gHue + random8(64), 200, 255);
+    LEDS.SetPixel(Pos, EffectVarietyCounter + random8(64), 200, 255);
 
 }
 
@@ -93,7 +93,7 @@ void SineLon() {
     // a colored dot sweeping back and forth, with fading trails
     Fade(0, NUMBER_OF_LEDS, 0.1);
     int Pos = beatsin16(13, 0, NUMBER_OF_LEDS - 1);
-    LEDS.AddToPixel(Pos, gHue, 255, 192);
+    LEDS.SetPixel(Pos, EffectVarietyCounter, 255, 192);
 
 }
 
@@ -105,7 +105,7 @@ void BPM() {
     const u_int32_t *Palette = PartyColors_p;
     uint8_t Beat = beatsin8(BeatsPerMinute, 64, 255);
     for (int i = 0; i < NUMBER_OF_LEDS; i++) {
-        LEDS.SetPixel(i, ReadFromPallete(Palette,gHue + (i * 2)) * (Beat - gHue + (i * 10)));
+        LEDS.SetPixel(i, ReadFromPallete(Palette,EffectVarietyCounter + (i * 2)) * (Beat - EffectVarietyCounter + (i * 10)));
     }
 }
 
