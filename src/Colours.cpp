@@ -4,7 +4,8 @@
 
 u_int32_t ReadFromPallete(const u_int32_t *Pallete, int Index) { // TODO SAVE TO PROGMEM
     Index %= 16;
-    return Pallete[Index];
+    u_int32_t This = pgm_read_dword(&Pallete[Index]);
+    return This;
 }
 
 void ReadFromPallete(const u_int32_t *Pallete, int Index, u_int32_t &StoreTo) {

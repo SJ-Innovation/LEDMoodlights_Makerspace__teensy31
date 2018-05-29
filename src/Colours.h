@@ -5,6 +5,7 @@
 
 #include "Arduino.h"
 #include "RGBConverter_t.h"
+
 /// Predefined RGB colors
 enum class COLOURS {
     AliceBlue = 0xF0F8FF,
@@ -167,7 +168,7 @@ enum class COLOURS {
 };
 
 
-const u_int32_t CloudColors_p[] = {
+const PROGMEM u_int32_t CloudColors_p[] = {
         (u_int32_t) COLOURS::Blue,
         (u_int32_t) COLOURS::DarkBlue,
         (u_int32_t) COLOURS::DarkBlue,
@@ -189,7 +190,7 @@ const u_int32_t CloudColors_p[] = {
         (u_int32_t) COLOURS::SkyBlue
 };
 
-const u_int32_t LavaColors_p[] = {
+const PROGMEM u_int32_t LavaColors_p[] = {
         (u_int32_t) COLOURS::Black,
         (u_int32_t) COLOURS::Maroon,
         (u_int32_t) COLOURS::Black,
@@ -211,7 +212,7 @@ const u_int32_t LavaColors_p[] = {
 };
 
 
-const u_int32_t OceanColors_p[] = {
+const PROGMEM u_int32_t OceanColors_p[] = {
         (u_int32_t) COLOURS::MidnightBlue,
         (u_int32_t) COLOURS::DarkBlue,
         (u_int32_t) COLOURS::MidnightBlue,
@@ -233,7 +234,7 @@ const u_int32_t OceanColors_p[] = {
         (u_int32_t) COLOURS::LightSkyBlue
 };
 
-const u_int32_t ForestColors_p[] = {
+const PROGMEM u_int32_t ForestColors_p[] = {
         (u_int32_t) COLOURS::DarkGreen,
         (u_int32_t) COLOURS::DarkGreen,
         (u_int32_t) COLOURS::DarkOliveGreen,
@@ -256,14 +257,14 @@ const u_int32_t ForestColors_p[] = {
 };
 
 
-const u_int32_t RainbowColors_p[] = {
+const PROGMEM u_int32_t RainbowColors_p[] = {
         0xFF0000, 0xD52A00, 0xAB5500, 0xAB7F00,
         0xABAB00, 0x56D500, 0x00FF00, 0x00D52A,
         0x00AB55, 0x0056AA, 0x0000FF, 0x2A00D5,
         0x5500AB, 0x7F0081, 0xAB0055, 0xD5002B
 };
 
-const u_int32_t RainbowStripeColors_p[] = {
+const PROGMEM u_int32_t RainbowStripeColors_p[] = {
         0xFF0000, 0x000000, 0xAB5500, 0x000000,
         0xABAB00, 0x000000, 0x00FF00, 0x000000,
         0x00AB55, 0x000000, 0x0000FF, 0x000000,
@@ -271,7 +272,7 @@ const u_int32_t RainbowStripeColors_p[] = {
 };
 
 
-const u_int32_t PartyColors_p[] = {
+const PROGMEM u_int32_t PartyColors_p[] = {
         0x5500AB, 0x84007C, 0xB5004B, 0xE5001B,
         0xE81700, 0xB84700, 0xAB7700, 0xABAB00,
         0xAB5500, 0xDD2200, 0xF2000E, 0xC2003E,
@@ -279,7 +280,7 @@ const u_int32_t PartyColors_p[] = {
 };
 
 
-const u_int32_t HeatColors_p[] = {
+const PROGMEM u_int32_t HeatColors_p[] = {
         0x000000,
         0x330000, 0x660000, 0x990000, 0xCC0000, 0xFF0000,
         0xFF3300, 0xFF6600, 0xFF9900, 0xFFCC00, 0xFFFF00,

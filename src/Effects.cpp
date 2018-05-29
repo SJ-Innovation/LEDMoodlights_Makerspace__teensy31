@@ -44,12 +44,12 @@ void BPM();
 void Juggle();
 
 void RegisterCustomEffects() { // Called during init to assign and set up all effect functions.
-    RegisterNextEffect(50,3000,Rainbow);
-    RegisterNextEffect(50,3000,RainbowWithGlitter);
-    RegisterNextEffect(50,3000,Confetti);
-    RegisterNextEffect(50,3000,SineLon);
-    RegisterNextEffect(50,3000,BPM);
-    RegisterNextEffect(50,3000,Juggle);
+    RegisterNextEffect(25,3,Rainbow);
+    RegisterNextEffect(10,3,RainbowWithGlitter);
+    RegisterNextEffect(20,3,Confetti);
+    RegisterNextEffect(30,3,SineLon);
+    RegisterNextEffect(5,3,BPM);
+    RegisterNextEffect(50,3,Juggle);
 }
 
 void TestEffect1() {
