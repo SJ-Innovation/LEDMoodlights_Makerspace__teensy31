@@ -30,6 +30,11 @@
     ForceNextEffectTo(ID<MAX_EFFECT_FUNCTIONS,Immediate(T/F)) - Forces the next effect to set to the one IDed to. Immediate flag (T- Change ASAP,F-Wait until it wouldve changed naturally). Useful if you know the order.
     ForceNextEffect(EffectFunctionPointer(void*void),Immediate(T/F)) -Forces the next effect to set to the one pointed to. Immediate flag (T- Change ASAP,F-Wait until it wouldve changed naturally). Useful if you dont care about order.
 
+ Pixel Types:
+    Raw u_int32_t 0xRRGGBB - RGB in single number form. (0-255 RGB)
+    RGBPixel .R .G .B - RGB u_int_8 form. (0-255)
+    HSLPixel .H .S .L - HSL float form (0-1)
+    HSVPixel .H .S .V - HSV float form (0-1)
 */
 
 
@@ -44,13 +49,23 @@ void BPM();
 void Juggle();
 
 void RegisterCustomEffects() { // Called during init to assign and set up all effect functions.
-    RegisterNextEffect(25,3,Rainbow);
-    RegisterNextEffect(10,3,RainbowWithGlitter);
-    RegisterNextEffect(20,3,Confetti);
-    RegisterNextEffect(30,3,SineLon);
-    RegisterNextEffect(5,3,BPM);
-    RegisterNextEffect(50,3,Juggle);
+    LEDS.SetGlobalBrightness(0.1);
+    RegisterNextEffect(50,3,Rainbow);
+  //  RegisterNextEffect(10,3,RainbowWithGlitter);
+  //  RegisterNextEffect(20,3,Confetti);
+  //  RegisterNextEffect(30,3,SineLon);
+  //  RegisterNextEffect(5,3,BPM);
+  //  RegisterNextEffect(50,3,Juggle);
 }
+float EffectVarietyCounter = 0; // rotating "base color" used by many of the patterns
+void PreCall(){
+
+}
+
+void PostCall(){
+    EffectVarietyCounter+=0.01;
+}
+
 
 void TestEffect1() {
     if (SoundAnalyser.BeatHappened()) {
@@ -61,11 +76,11 @@ void TestEffect1() {
 }
 
 
-uint8_t EffectVarietyCounter = 0; // rotating "base color" used by many of the patterns
+
 
 void Rainbow() {
     // FastLED's built-in Rainbow generator
-    FillRainbow(0, NUMBER_OF_LEDS, EffectVarietyCounter, 7);
+    FillRainbow(0, NUMBER_OF_LEDS, EffectVarietyCounter, 0.05);
 }
 
 void AddGlitter(u_int8_t ChanceOfGlitter) {
@@ -102,21 +117,19 @@ void SineLon() {
 void BPM() {
     // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
     uint8_t BeatsPerMinute = 62;
-    const u_int32_t *Palette = PartyColors_p;
-    uint8_t Beat = beatsin8(BeatsPerMinute, 64, 255);
+    uint8_t Beat = beatsin8(BeatsPerMinute, 0, 15);
     for (int i = 0; i < NUMBER_OF_LEDS; i++) {
-        LEDS.SetPixel(i, ReadFromPallete(Palette,EffectVarietyCounter + (i * 2)) * (Beat - EffectVarietyCounter + (i * 10)));
+        LEDS.SetPixel(i, ReadFromPallete(PartyColors_p,Beat+i));
     }
 }
 
 void Juggle() {
     // eight colored dots, weaving in and out of sync with each other
-    Fade(0, NUMBER_OF_LEDS, 0.1);
+    Fade(0, NUMBER_OF_LEDS, 0.05);
     float DotHue = 0;
     for (int i = 0; i < 8; i++) {
         HSVPixel ThisPix = {DotHue, 0.75, 1};
         LEDS.SetPixel(beatsin16(i + 7, 0, NUMBER_OF_LEDS - 1),ThisPix);
-      //  LEDS[beatsin16(i + 7, 0, NUMBER_OF_LEDS - 1)] |= CHSV(dothue, 200, 255);
         DotHue += 0.125;
     }
 }

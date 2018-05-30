@@ -40,32 +40,18 @@ void SetSolidColour(u_int32_t Start, u_int32_t End, HSVPixel Colour) {
     SetSolidColour(Start, End, ThisCol);
 }
 
-void FillRainbow(int FirstLED_ID, int NumToFill,
-                 uint8_t InitialHue,
-                 uint8_t DeltaHue) {
+void FillRainbow(u_int32_t FirstLED_ID, u_int32_t NumToFill,
+                 float InitialHue,
+                 float DeltaHue) {
     HSVPixel HSV;
     HSV.H = InitialHue;
-    HSV.V = 255;
-    HSV.S = 240;
+    HSV.V = 1.0;
+    HSV.S = 0.8;
     for (int i = 0; i < NumToFill; i++) {
         LEDS.SetPixel(FirstLED_ID + i, HSV);
         HSV.H += DeltaHue;
     }
 }
-
-//void FillRainbow(struct RGBPixel *targetArray, int numToFill,
-//                 uint8_t initialhue,
-//                 uint8_t deltahue)
-//{
-//    HSVPixel hsv;
-//    hsv.H = initialhue;
-//    hsv.V = 255;
-//    hsv.S = 240;
-//    for( int i = 0; i < numToFill; i++) {
-//        targetArray[i] = hsv;
-//        hsv.H += deltahue;
-//    }
-//}
 
 
 void FillGradientRGB(uint16_t StartPos, RGBPixel StartColor, uint16_t EndPos, RGBPixel EndColor) {
@@ -144,5 +130,47 @@ void Fade(u_int32_t StartID, u_int32_t EndID, float FadeBy) {
 
 }
 
+void PrintPixel(u_int8_t R,u_int8_t G,u_int8_t B){
+    Serial.print("Pixel - R:");
+    Serial.print(R);
+    Serial.print(" G:");
+    Serial.print(G);
+    Serial.print(" B:");
+    Serial.println(B);
+}
+
+void PrintPixel(RGBPixel Colour){
+    Serial.print("RGB");
+    PrintPixel(Colour.R,Colour.G,Colour.B);
+}
+
+void PrintPixel(u_int32_t Colour){
+    PrintPixel((Colour>>16 &255),(Colour>>8)&255,Colour&255);
+}
+
+void PrintPixel(HSLPixel Colour){
+    Serial.print("HSLPixel - H:");
+    Serial.print(Colour.H);
+    Serial.print(" S:");
+    Serial.print(Colour.S);
+    Serial.print(" L:");
+    Serial.print(Colour.L);
+    Serial.print(" ");
+    RGBPixel Temp;
+    ColourConverter.ToRGB(Colour,Temp);
+    PrintPixel(Temp);
+}
+void PrintPixel(HSVPixel Colour){
+    Serial.print("HSVPixel - H:");
+    Serial.print(Colour.H);
+    Serial.print(" S:");
+    Serial.print(Colour.S);
+    Serial.print(" V:");
+    Serial.print(Colour.V);
+    Serial.print(" ");
+    RGBPixel Temp;
+    ColourConverter.ToRGB(Colour,Temp);
+    PrintPixel(Temp);
+}
 
 

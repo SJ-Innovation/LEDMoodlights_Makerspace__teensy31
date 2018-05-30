@@ -13,7 +13,8 @@
 #include "lib8tion.h"
 
 void RegisterCustomEffects();
-
+void PostCall();
+void PreCall();
 extern RGBConverter_t ColourConverter;
 
 extern bool RegisterNextEffect(float DisplayTime, float Frequency, void (*EffectFunction)(void));

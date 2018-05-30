@@ -148,7 +148,9 @@ void loop() {
     if ((not LEDS.IsBusy()) and (EffectIntervalTimes[CurrentEffectIndex] == 0 or Now - LastEffectFunctionRun >=
                                                                                  EffectIntervalTimes[CurrentEffectIndex])) { // Is it time to run the effect function as defined by its call frequency?
         LastEffectFunctionRun = Now;
+        PreCall();
         EffectFunctions[CurrentEffectIndex](); // Run whichever effect we need to run.
+        PostCall();
         LEDS.ShowNonBlocking(); // Start the LEDs updating first. Its asyncronous.
         digitalWrite(LED_BUILTIN, !digitalReadFast(LED_BUILTIN));
     }

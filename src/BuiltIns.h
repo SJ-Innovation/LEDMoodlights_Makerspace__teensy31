@@ -22,7 +22,7 @@ void SetSolidColour(u_int32_t Start, u_int32_t End, HSLPixel Colour);
 
 void SetSolidSolidColour(u_int32_t Start, u_int32_t End, HSVPixel Colour);
 
-void FillRainbow(int FirstLED_ID, int NumToFill, uint8_t InitialHue, uint8_t DeltaHue);
+void FillRainbow(u_int32_t FirstLED_ID, u_int32_t NumToFill, float InitialHue, float DeltaHue);
 
 void FillGradientRGB(uint16_t StartPos, RGBPixel StartColor, uint16_t EndPos, RGBPixel EndColor);
 
@@ -35,5 +35,11 @@ void FillGradientRGB(uint16_t NumLeds, const RGBPixel &c1, const RGBPixel &c2, c
 void Scale(u_int32_t StartID, u_int32_t EndID, float Scale);
 
 void Fade(u_int32_t StartID, u_int32_t EndID, float FadeBy);
+void PrintPixel(u_int8_t R,u_int8_t G,u_int8_t B);
+void PrintPixel(RGBPixel Colour);
+void PrintPixel(u_int32_t Colour);
+void PrintPixel(HSLPixel Colour);
+void PrintPixel(HSVPixel Colour);
+
 
 #endif //_BUILTINS_H
