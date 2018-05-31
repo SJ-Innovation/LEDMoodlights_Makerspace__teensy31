@@ -49,7 +49,7 @@ extern RGBConverter_t ColourConverter;
 class SuperFastNeoPixel {
 public:
     constexpr SuperFastNeoPixel(uint16_t num, void *fb, void *db, uint8_t pin, uint8_t cfg) :
-            NumLed(num), Pin(pin), Config(cfg),
+            _NumLed(num), Pin(pin), Config(cfg),
             FrameBuffer((uint8_t *) fb), DrawBuffer((uint8_t *) db) {
         _Brightness = 1;
     }
@@ -57,7 +57,7 @@ public:
     bool Begin();
 
     void ScalePixel(u_int32_t Num, float ScaleFactor) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         Num *= 3;
         DrawBuffer[Num + 0] *= ScaleFactor;
         DrawBuffer[Num + 1] *= ScaleFactor;
@@ -65,7 +65,7 @@ public:
     }
 
     void AddToPixel(u_int32_t Num, u_int8_t r, u_int8_t g, u_int8_t b) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         Num *= 3;
         DrawBuffer[Num + 0] += min(r, 255 - DrawBuffer[Num + 0]);
         DrawBuffer[Num + 1] += min(g, 255 - DrawBuffer[Num + 1]);
@@ -73,31 +73,31 @@ public:
     }
 
     void AddToPixel(u_int32_t Num, u_int32_t Offset) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         AddToPixel(Num, (Offset >> 16) & 255, (Offset >> 8) & 255, Offset & 255);
     }
 
     void AddToPixel(u_int32_t Num, RGBPixel &Offset) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         AddToPixel(Num, Offset.R, Offset.G, Offset.B);
     }
 
     void AddToPixel(u_int32_t Num, HSVPixel &Offset) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         RGBPixel Temp;
         ColourConverter.ToRGB(Offset, Temp);
         AddToPixel(Num, Temp);
     }
 
     void AddToPixel(u_int32_t Num, HSLPixel &Offset) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         RGBPixel Temp;
         ColourConverter.ToRGB(Offset, Temp);
         AddToPixel(Num, Temp);
     }
 
     void SubtractFromPixel(u_int32_t Num, u_int8_t r, u_int8_t g, u_int8_t b) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         Num *= 3;
         DrawBuffer[Num + 0] -= min(r, DrawBuffer[Num + 0]);
         DrawBuffer[Num + 1] -= min(g, DrawBuffer[Num + 1]);
@@ -105,26 +105,26 @@ public:
     }
 
     void SubtractFromPixel(u_int32_t Num, RGBPixel &Offset) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         SubtractFromPixel(Num, Offset.R, Offset.G, Offset.B);
     }
 
     void SubtractFromPixel(u_int32_t Num, HSVPixel &Offset) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         RGBPixel Temp;
         ColourConverter.ToRGB(Offset, Temp);
         SubtractFromPixel(Num, Temp);
     }
 
     void SubtractFromPixel(u_int32_t Num, HSLPixel &Offset) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         RGBPixel Temp;
         ColourConverter.ToRGB(Offset, Temp);
         SubtractFromPixel(Num, Temp);
     }
 
     void SetPixel(u_int32_t Num, uint8_t red, uint8_t green, uint8_t blue) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         Num *= 3;
         DrawBuffer[Num + 0] = red;
         DrawBuffer[Num + 1] = green;
@@ -132,38 +132,38 @@ public:
     }
 
     void SetPixel(u_int32_t Num, u_int32_t Colour) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         SetPixel(Num, (Colour >> 16) & 255, (Colour >> 8) & 255, Colour & 255);
     }
 
 
     void SetPixel(u_int32_t Num, RGBPixel &Pixel) {
-        if (Num >= NumLed) return;
-        SetPixel(Num,Pixel.R,Pixel.G,Pixel.B);
+        if (Num >= _NumLed) return;
+        SetPixel(Num, Pixel.R, Pixel.G, Pixel.B);
     }
 
     void SetPixel(u_int32_t Num, HSLPixel &Pixel) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         RGBPixel Temp;
         ColourConverter.ToRGB(Pixel, Temp);
         SetPixel(Num, Temp);
     }
 
     void SetPixel(u_int32_t Num, HSVPixel &Pixel) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         RGBPixel Temp;
         ColourConverter.ToRGB(Pixel, Temp);
         SetPixel(Num, Temp);
     }
 
     u_int32_t GetPixel(u_int32_t Num) {
-        if (Num >= NumLed) return 0;
+        if (Num >= _NumLed) return 0;
         Num *= 3;
         return 0xFFFFFF & ((DrawBuffer[Num] << 16) | (DrawBuffer[Num + 1] << 8) | (DrawBuffer[Num + 2]));
     }
 
     void GetPixel(u_int32_t Num, RGBPixel &StoreTo) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         Num *= 3;
         StoreTo.R = DrawBuffer[Num];
         StoreTo.G = DrawBuffer[Num + 1];
@@ -171,21 +171,21 @@ public:
     }
 
     void GetPixel(u_int32_t Num, HSLPixel &StoreTo) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         RGBPixel Temp;
         GetPixel(Num, Temp);
         ColourConverter.ToHSL(Temp, StoreTo);
     }
 
     void GetPixel(u_int32_t Num, HSVPixel &StoreTo) {
-        if (Num >= NumLed) return;
+        if (Num >= _NumLed) return;
         RGBPixel Temp;
         GetPixel(Num, Temp);
         ColourConverter.ToHSV(Temp, StoreTo);
     }
 
     void Clear() {
-        memset(DrawBuffer, 0, NumLed * 3);
+        memset(DrawBuffer, 0, _NumLed * 3);
     }
 
     void SetGlobalBrightness(float NewBrightness) {
@@ -205,13 +205,13 @@ public:
     bool IsBusy();
 
     uint16_t NumPixels() {
-        return NumLed;
+        return _NumLed;
     }
 
     int GetUpdateRate();
 
 private:
-    const uint16_t NumLed;
+    const uint16_t _NumLed;
     const uint8_t Pin;
     const uint8_t Config;
     uint8_t *FrameBuffer;

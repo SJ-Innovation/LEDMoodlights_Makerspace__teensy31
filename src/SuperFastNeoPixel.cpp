@@ -119,7 +119,7 @@ bool SuperFastNeoPixel::Begin() {
     *(portConfigRegister(Pin)) = PortConfig;
     DMA->destination(UART->D);
     DMA->triggerAtHardwareEvent(HW_Trigger);
-    memset(DrawBuffer, 0, NumLed * 3);
+    memset(DrawBuffer, 0, _NumLed * 3);
     return true;
 }
 
@@ -151,7 +151,7 @@ void SuperFastNeoPixel::ShowNonBlocking() {
     FrameCount++;
     // copy drawing buffer to frame buffer
     const uint8_t *CurrentPtr = DrawBuffer;
-    const uint8_t *EndPtr = CurrentPtr + (NumLed * 3);
+    const uint8_t *EndPtr = CurrentPtr + (_NumLed * 3);
     uint8_t *CurFrameBuffer = FrameBuffer;
     while (CurrentPtr < EndPtr) {
         uint8_t r = (float)(*CurrentPtr++)*_Brightness;
@@ -188,7 +188,7 @@ void SuperFastNeoPixel::ShowNonBlocking() {
         } while (CurFrameBuffer < Stop);
     }
     // wait 300us WS28xx reset time
-    uint32_t MinimumElapsed = (NumLed * 30) + 300;
+    uint32_t MinimumElapsed = (_NumLed * 30) + 300;
     if (MinimumElapsed < 2500) MinimumElapsed = 2500;
     uint32_t Now;
     while (1) {
@@ -199,15 +199,15 @@ void SuperFastNeoPixel::ShowNonBlocking() {
     Prior_Micros = Now;
     // start DMA transfer to Update LEDs  :-)
 #if defined(KINETISK)
-    DMA->sourceBuffer(FrameBuffer, NumLed * 12);
+    DMA->sourceBuffer(FrameBuffer, _NumLed * 12);
     DMA->transferSize(1);
-    DMA->transferCount(NumLed * 12);
+    DMA->transferCount(_NumLed * 12);
     DMA->disableOnCompletion();
     DMA->enable();
 #elif defined(KINETISL)
     DMA->CFG->SAR = FrameBuffer;
     DMA->CFG->DSR_BCR = 0x01000000;
-    DMA->CFG->DSR_BCR = NumLed * 12;
+    DMA->CFG->DSR_BCR = _NumLed * 12;
     DMA->CFG->DCR = DMA_DCR_ERQ | DMA_DCR_CS | DMA_DCR_SSIZE(1) |
         DMA_DCR_SINC | DMA_DCR_DSIZE(1) | DMA_DCR_D_REQ;
 #endif

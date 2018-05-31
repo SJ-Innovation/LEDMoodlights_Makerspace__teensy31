@@ -1,5 +1,5 @@
 #include "BuiltIns.h"
-#include "Effects.h"
+#include "CustomEffects.h"
 #include "lib8tion.h"
 
 void SetSolidColour(RGBPixel Colour) {
@@ -47,17 +47,17 @@ void FillRainbow(u_int32_t FirstLED_ID, u_int32_t NumToFill,
     HSV.H = InitialHue;
     HSV.V = 1.0;
     HSV.S = 0.8;
-    for (int i = 0; i < NumToFill; i++) {
+    for (u_int32_t i = 0; i < NumToFill; i++) {
         LEDS.SetPixel(FirstLED_ID + i, HSV);
         HSV.H += DeltaHue;
     }
 }
 
 
-void FillGradientRGB(uint16_t StartPos, RGBPixel StartColor, uint16_t EndPos, RGBPixel EndColor) {
+void FillGradientRGB(u_int32_t StartPos, RGBPixel StartColor, u_int32_t EndPos, RGBPixel EndColor) {
     // if the points are in the wrong order, straighten them
     if (EndPos < StartPos) {
-        uint16_t t = EndPos;
+        u_int32_t t = EndPos;
         RGBPixel tc = EndColor;
         EndColor = StartColor;
         EndPos = StartPos;
@@ -65,20 +65,16 @@ void FillGradientRGB(uint16_t StartPos, RGBPixel StartColor, uint16_t EndPos, RG
         StartColor = tc;
     }
 
-    u_int16_t RDistance;
-    u_int16_t GDistance;
-    u_int16_t BDistance;
-
-    RDistance = (EndColor.R - StartColor.R) << 7;
-    GDistance = (EndColor.G - StartColor.G) << 7;
-    BDistance = (EndColor.B - StartColor.B) << 7;
+    u_int16_t RDist = (EndColor.R - StartColor.R) << 7;
+    u_int16_t GDist = (EndColor.G - StartColor.G) << 7;
+    u_int16_t BDist = (EndColor.B - StartColor.B) << 7;
 
     uint16_t PixelDistance = EndPos - StartPos;
     int16_t Divisor = PixelDistance ? PixelDistance : 1;
 
-    u_int16_t RDelta = RDistance / Divisor;
-    u_int16_t GDelta = GDistance / Divisor;
-    u_int16_t BDelta = BDistance / Divisor;
+    u_int16_t RDelta = RDist / Divisor;
+    u_int16_t GDelta = GDist / Divisor;
+    u_int16_t BDelta = BDist / Divisor;
 
     RDelta *= 2;
     GDelta *= 2;
@@ -96,7 +92,7 @@ void FillGradientRGB(uint16_t StartPos, RGBPixel StartColor, uint16_t EndPos, RG
 }
 
 
-void FillGradientRGB( uint16_t NumToFill, const RGBPixel &c1, const RGBPixel &c2) {
+void FillGradientRGB(uint16_t NumToFill, const RGBPixel &c1, const RGBPixel &c2) {
     uint16_t Last = NumToFill - 1;
     FillGradientRGB(0, c1, Last, c2);
 }
@@ -110,9 +106,9 @@ void FillGradientRGB(uint16_t NumToFill, const RGBPixel &c1, const RGBPixel &c2,
 }
 
 void FillGradientRGB(uint16_t NumLeds, const RGBPixel &c1, const RGBPixel &c2, const RGBPixel &c3, const RGBPixel &c4) {
-    uint16_t OneThird = (NumLeds / 3);
-    uint16_t TwoThirds = ((NumLeds * 2) / 3);
-    uint16_t Last = NumLeds - 1;
+    uint32_t OneThird = (NumLeds / 3);
+    uint32_t TwoThirds = ((NumLeds * 2) / 3);
+    uint32_t Last = NumLeds - 1;
     FillGradientRGB(0, c1, OneThird, c2);
     FillGradientRGB(OneThird, c2, TwoThirds, c3);
     FillGradientRGB(TwoThirds, c3, Last, c4);
@@ -121,7 +117,7 @@ void FillGradientRGB(uint16_t NumLeds, const RGBPixel &c1, const RGBPixel &c2, c
 
 void Scale(u_int32_t StartID, u_int32_t EndID, float Scale) {
     for (u_int32_t i = 0; i < EndID; i++) {
-        LEDS.ScalePixel(i,Scale);
+        LEDS.ScalePixel(i, Scale);
     }
 }
 
@@ -130,7 +126,7 @@ void Fade(u_int32_t StartID, u_int32_t EndID, float FadeBy) {
 
 }
 
-void PrintPixel(u_int8_t R,u_int8_t G,u_int8_t B){
+void PrintPixel(u_int8_t R, u_int8_t G, u_int8_t B) {
     Serial.print("Pixel - R:");
     Serial.print(R);
     Serial.print(" G:");
@@ -139,16 +135,16 @@ void PrintPixel(u_int8_t R,u_int8_t G,u_int8_t B){
     Serial.println(B);
 }
 
-void PrintPixel(RGBPixel Colour){
+void PrintPixel(RGBPixel Colour) {
     Serial.print("RGB");
-    PrintPixel(Colour.R,Colour.G,Colour.B);
+    PrintPixel(Colour.R, Colour.G, Colour.B);
 }
 
-void PrintPixel(u_int32_t Colour){
-    PrintPixel((Colour>>16 &255),(Colour>>8)&255,Colour&255);
+void PrintPixel(u_int32_t Colour) {
+    PrintPixel((Colour >> 16 & 255), (Colour >> 8) & 255, Colour & 255);
 }
 
-void PrintPixel(HSLPixel Colour){
+void PrintPixel(HSLPixel Colour) {
     Serial.print("HSLPixel - H:");
     Serial.print(Colour.H);
     Serial.print(" S:");
@@ -157,10 +153,11 @@ void PrintPixel(HSLPixel Colour){
     Serial.print(Colour.L);
     Serial.print(" ");
     RGBPixel Temp;
-    ColourConverter.ToRGB(Colour,Temp);
+    ColourConverter.ToRGB(Colour, Temp);
     PrintPixel(Temp);
 }
-void PrintPixel(HSVPixel Colour){
+
+void PrintPixel(HSVPixel Colour) {
     Serial.print("HSVPixel - H:");
     Serial.print(Colour.H);
     Serial.print(" S:");
@@ -169,7 +166,7 @@ void PrintPixel(HSVPixel Colour){
     Serial.print(Colour.V);
     Serial.print(" ");
     RGBPixel Temp;
-    ColourConverter.ToRGB(Colour,Temp);
+    ColourConverter.ToRGB(Colour, Temp);
     PrintPixel(Temp);
 }
 

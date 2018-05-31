@@ -19,7 +19,7 @@ extern RGBConverter_t ColourConverter;
 
 extern bool RegisterNextEffect(float DisplayTime, float Frequency, void (*EffectFunction)(void));
 
-extern bool RegisterEffectFunctionTo(int Index, float Frequency, float DisplayTime, void (*EffectFunction)(void));
+extern bool RegisterEffectFunctionTo(u_int8_t Index, float Frequency, float DisplayTime, void (*EffectFunction)(void));
 
 extern AudioAnalyzeFFT1024 FFTChannel;
 extern AudioAnalyzeRMS RMSChannel;

@@ -1,5 +1,128 @@
 #include "RGBConverter_t.h"
 
+
+void RGBConverter_t::ToHSL(RGBPixel &RGB, HSLPixel &HSL) {
+    float rd = (float) RGB.R / 255;
+    float gd = (float) RGB.G / 255;
+    float bd = (float) RGB.B / 255;
+    float max = MaxThree(rd, gd, bd);
+    float min = MinThree(rd, gd, bd);
+    float h = 0, s = 0, l = (max + min) / 2;
+
+    if (max == min) {
+        h = s = 0; // achromatic
+    }
+    else {
+        float d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        if (max == rd) {
+            h = (gd - bd) / d + (gd < bd ? 6 : 0);
+        }
+        else if (max == gd) {
+            h = (bd - rd) / d + 2;
+        }
+        else if (max == bd) {
+            h = (rd - gd) / d + 4;
+        }
+        h /= 6;
+    }
+    HSL.H = h;
+    HSL.S = s;
+    HSL.L = l;
+}
+
+void RGBConverter_t::ToHSL(HSVPixel &HSV, HSLPixel &HSL) {
+    RGBPixel Temp;
+    ToRGB(HSV, Temp);
+    ToHSL(Temp, HSL);
+}
+
+void RGBConverter_t::ToHSL(u_int32_t Raw, HSLPixel &HSL) {
+    RGBPixel Temp;
+    ToRGB(Raw, Temp);
+    ToHSL(Temp, HSL);
+}
+
+HSLPixel RGBConverter_t::ToHSL(RGBPixel &RGB) {
+    HSLPixel RVal;
+    ToHSL(RGB, RVal);
+    return RVal;
+}
+
+HSLPixel RGBConverter_t::ToHSL(HSVPixel &HSV) {
+    HSLPixel RVal;
+    ToHSL(HSV, RVal);
+    return RVal;
+}
+
+HSLPixel RGBConverter_t::ToHSL(u_int32_t &Raw) {
+    HSLPixel RVal;
+    ToHSL(Raw, RVal);
+    return RVal;
+}
+
+void RGBConverter_t::ToHSV(RGBPixel &RGB, HSVPixel &HSV) {
+    float rd = (float) RGB.R / 255;
+    float gd = (float) RGB.G / 255;
+    float bd = (float) RGB.B / 255;
+    float max = MaxThree(rd, gd, bd), min = MinThree(rd, gd, bd);
+    float h = 0, s = 0, v = max;
+
+    float d = max - min;
+    s = max == 0 ? 0 : d / max;
+
+    if (max == min) {
+        h = 0; // achromatic
+    }
+    else {
+        if (max == rd) {
+            h = (gd - bd) / d + (gd < bd ? 6 : 0);
+        }
+        else if (max == gd) {
+            h = (bd - rd) / d + 2;
+        }
+        else if (max == bd) {
+            h = (rd - gd) / d + 4;
+        }
+        h /= 6;
+    }
+
+    HSV.H = h;
+    HSV.S = s;
+    HSV.V = v;
+}
+
+void RGBConverter_t::ToHSV(HSLPixel &HSL, HSVPixel &HSV) {
+    RGBPixel Temp;
+    ToRGB(HSL, Temp);
+    ToHSV(Temp, HSV);
+}
+
+void RGBConverter_t::ToHSV(u_int32_t Raw, HSVPixel &HSV) {
+    RGBPixel Temp;
+    ToRGB(Raw, Temp);
+    ToHSV(Temp, HSV);
+}
+
+HSVPixel RGBConverter_t::ToHSV(RGBPixel &RGB) {
+    HSVPixel RVal;
+    ToHSV(RGB, RVal);
+    return RVal;
+}
+
+HSVPixel RGBConverter_t::ToHSV(HSLPixel &HSL) {
+    HSVPixel RVal;
+    ToHSV(HSL, RVal);
+    return RVal;
+}
+
+HSVPixel RGBConverter_t::ToHSV(u_int32_t &Raw) {
+    HSVPixel RVal;
+    ToHSV(Raw, RVal);
+    return RVal;
+}
+
+
 void RGBConverter_t::ToRGB(u_int32_t Raw, RGBPixel &RGB) {
     RGB.R = (Raw >> 16) & 255;
     RGB.G = (Raw >> 8) & 255;
@@ -60,91 +183,54 @@ void RGBConverter_t::ToRGB(HSVPixel &HSV, RGBPixel &RGB) {
     RGB.B = b * 255;
 }
 
-
-
-void RGBConverter_t::ToHSL(RGBPixel &RGB, HSLPixel &HSL) {
-    float rd = (float) RGB.R / 255;
-    float gd = (float) RGB.G / 255;
-    float bd = (float) RGB.B / 255;
-    float max = MaxThree(rd, gd, bd);
-    float min = MinThree(rd, gd, bd);
-    float h = 0, s = 0, l = (max + min) / 2;
-
-    if (max == min) {
-        h = s = 0; // achromatic
-    }
-    else {
-        float d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        if (max == rd) {
-            h = (gd - bd) / d + (gd < bd ? 6 : 0);
-        }
-        else if (max == gd) {
-            h = (bd - rd) / d + 2;
-        }
-        else if (max == bd) {
-            h = (rd - gd) / d + 4;
-        }
-        h /= 6;
-    }
-    HSL.H = h;
-    HSL.S = s;
-    HSL.L = l;
+RGBPixel RGBConverter_t::ToRGB(HSLPixel &HSL) {
+    RGBPixel RVal;
+    ToRGB(HSL, RVal);
+    return RVal;
 }
 
-void RGBConverter_t::ToHSL(HSVPixel &HSV, HSLPixel &HSL) {
-    RGBPixel Temp;
-    ToRGB(HSV, Temp);
-    ToHSL(Temp, HSL);
+RGBPixel RGBConverter_t::ToRGB(HSVPixel &HSV) {
+    RGBPixel RVal;
+    ToRGB(HSV, RVal);
+    return RVal;
 }
 
-void RGBConverter_t::ToHSL(u_int32_t Raw, HSLPixel &HSL) {
-    RGBPixel Temp;
-    ToRGB(Raw,Temp);
-    ToHSL(Temp,HSL);
+RGBPixel RGBConverter_t::ToRGB(u_int32_t &Raw) {
+    RGBPixel RVal;
+    ToRGB(Raw, RVal);
+    return RVal;
 }
 
-void RGBConverter_t::ToHSV(RGBPixel &RGB, HSVPixel &HSV) {
-    float rd = (float) RGB.R / 255;
-    float gd = (float) RGB.G / 255;
-    float bd = (float) RGB.B / 255;
-    float max = MaxThree(rd, gd, bd), min = MinThree(rd, gd, bd);
-    float h = 0, s = 0, v = max;
-
-    float d = max - min;
-    s = max == 0 ? 0 : d / max;
-
-    if (max == min) {
-        h = 0; // achromatic
-    }
-    else {
-        if (max == rd) {
-            h = (gd - bd) / d + (gd < bd ? 6 : 0);
-        }
-        else if (max == gd) {
-            h = (bd - rd) / d + 2;
-        }
-        else if (max == bd) {
-            h = (rd - gd) / d + 4;
-        }
-        h /= 6;
-    }
-
-    HSV.H = h;
-    HSV.S = s;
-    HSV.V = v;
+void RGBConverter_t::ToRaw(RGBPixel &RGB, u_int32_t &StoreTo) {
+    StoreTo = ToRaw(RGB);
 }
 
-void RGBConverter_t::ToHSV(HSLPixel &HSL, HSVPixel &HSV) {
+void RGBConverter_t::ToRaw(HSLPixel &HSL, u_int32_t &StoreTo) {
     RGBPixel Temp;
     ToRGB(HSL, Temp);
-    ToHSV(Temp, HSV);
+    ToRaw(Temp, StoreTo);
 }
 
-void RGBConverter_t::ToHSV(u_int32_t Raw, HSVPixel &HSV) {
+void RGBConverter_t::ToRaw(HSVPixel &HSV, u_int32_t &StoreTo) {
     RGBPixel Temp;
-    ToRGB(Raw,Temp);
-    ToHSV(Temp,HSV);
+    ToRGB(HSV, Temp);
+    ToRaw(Temp, StoreTo);
+}
+
+u_int32_t RGBConverter_t::ToRaw(RGBPixel &RGB) {
+    return (RGB.R << 16) | (RGB.G << 8) | RGB.B;
+}
+
+u_int32_t RGBConverter_t::ToRaw(HSLPixel &HSL) {
+    RGBPixel Temp;
+    ToRGB(HSL, Temp);
+    return ToRaw(Temp);
+}
+
+u_int32_t RGBConverter_t::ToRaw(HSVPixel &HSV) {
+    RGBPixel Temp;
+    ToRGB(HSV, Temp);
+    return ToRaw(Temp);
 }
 
 

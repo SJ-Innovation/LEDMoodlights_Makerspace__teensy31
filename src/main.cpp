@@ -2,7 +2,7 @@
 #include <Audio.h>
 #include "SuperFastNeoPixel.h"
 #include "Config.h"
-#include "Effects.h"
+#include "CustomEffects.h"
 #include "lib8tion.h"
 #include "SoundAnalysis.h"
 
@@ -53,7 +53,7 @@ int FreeRam() { // Difference between stack and heap pointers.
     return &top - reinterpret_cast<char *>(sbrk(0));
 }
 
-bool RegisterEffectFunctionTo(int Index, float Frequency, float DisplayTime,
+bool RegisterEffectFunctionTo(u_int8_t Index, float Frequency, float DisplayTime,
                               void (*EffectFunction)(void)) { // Registers an effect function to the set registry index. Overwrites.
     Frequency = min(Frequency, FAST_AS_POSSIBLE);
     if (IN_RANGE(0, Index, MAX_EFFECT_FUNCTIONS - 1) && IN_RANGE(0, Frequency, FAST_AS_POSSIBLE)) {

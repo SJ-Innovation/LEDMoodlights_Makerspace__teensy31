@@ -1,6 +1,6 @@
 #include "Colours.h"
 #include "RGBConverter_t.h"
-#include "Effects.h"
+#include "CustomEffects.h"
 
 u_int32_t ReadFromPallete(const u_int32_t *Pallete, int Index) {
     Index %= 16;
