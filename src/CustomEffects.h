@@ -15,15 +15,12 @@
 void RegisterCustomEffects();
 void PostCall();
 void PreCall();
-extern RGBConverter_t ColourConverter;
+
 
 extern bool RegisterNextEffect(float DisplayTime, float Frequency, void (*EffectFunction)(void));
 
 extern bool RegisterEffectFunctionTo(u_int8_t Index, float Frequency, float DisplayTime, void (*EffectFunction)(void));
-
-extern AudioAnalyzeFFT1024 FFTChannel;
-extern AudioAnalyzeRMS RMSChannel;
-extern AudioAnalyzePeak PeakChannel;
+extern RGBConverter_t ColourConverter;
 extern SuperFastNeoPixel LEDS;
 extern SoundAnalyser_t SoundAnalyser;
 #endif //_EFFECTS_H

@@ -18,6 +18,7 @@ public:
 
     void Update();
 
+
     float GetDominantFrequency();
 
     float GetVolumePeak();
@@ -46,10 +47,11 @@ public:
         BeatMin = New;
     }
 
-private:
     AudioAnalyzeFFT1024 *FFTAnalyser;
     AudioAnalyzePeak *PeakAnalyser;
     AudioAnalyzeRMS *RMSAnalyser;
+private:
+
 
     float _DominantFreq;
     float _VolumePeak;
@@ -67,6 +69,10 @@ private:
     float BeatMin;
     float BeatCutoff = 0.5;
     u_int32_t BeatTime = 0;
+
+    void _UpdateDominantFreq();
+
+    void _UpdateBeatDetector();
 };
 
 #endif //WS2811DRIVER_TEENSY31_FREQUENCYANALYSIS_H

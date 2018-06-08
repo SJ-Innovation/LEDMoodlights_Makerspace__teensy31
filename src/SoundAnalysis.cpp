@@ -25,7 +25,11 @@ void SoundAnalyser_t::Update() {
     FFTAnalyser->update();
     RMSAnalyser->update();
     PeakAnalyser->update();
+    _UpdateDominantFreq();
+    _UpdateBeatDetector();
+}
 
+void SoundAnalyser_t::_UpdateDominantFreq() {
     if (FFTAnalyser->available()) {
         int MaxVal = 0;
         int MaxBin = 0;
@@ -37,12 +41,12 @@ void SoundAnalyser_t::Update() {
             }
         }
         _DominantFreq = MaxBin * BIN_SEPERATION;
-
     }
+}
+
+void SoundAnalyser_t::_UpdateBeatDetector() {
     if (PeakAnalyser->available()) {
         _VolumePeak = PeakAnalyser->read();
-
-
         // calculate an average of the last few frames of
         // audio data -- anything greater than this AND the running beat threshold
         // will count as a beat

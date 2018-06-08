@@ -64,6 +64,7 @@ void PreCall(){
 
 void PostCall(){
     EffectVarietyCounter+=0.01;
+
 }
 
 
@@ -90,7 +91,7 @@ void AddGlitter(u_int8_t ChanceOfGlitter) {
 }
 
 void RainbowWithGlitter() {
-    // built-in FastLED Rainbow, plus some random sparkly glitter
+    // built-in FastLED Rainbow ported over, plus some random sparkly glitter
     Rainbow();
     AddGlitter(80);
 }
@@ -119,7 +120,7 @@ void BPM() {
     uint8_t BeatsPerMinute = 62;
     uint8_t Beat = beatsin8(BeatsPerMinute, 0, 15);
     for (int i = 0; i < NUMBER_OF_LEDS; i++) {
-        LEDS.SetPixel(i, ReadFromPallete(PartyColors_p,Beat+i));
+        LEDS.SetPixel(i, ReadFromPallete(PartyColors_Pallete,Beat+i));
     }
 }
 
